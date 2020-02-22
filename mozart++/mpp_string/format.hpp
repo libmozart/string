@@ -28,8 +28,13 @@ namespace mpp_impl {
         }
 
         template <typename Out>
-        static void try_write_stream(Out &out, ParamT t, int) {
+        static auto try_write_stream(Out &out, ParamT t, int) -> decltype(out << mpp::to_string(std::forward<T>(t))) {
             out << mpp::to_string(std::forward<T>(t));
+        }
+
+        template <typename Out>
+        static void try_write_stream(Out &out, ParamT t, long) {
+            // the stream cannot write anything, even a string.
         }
 
         template <typename Out>
@@ -81,7 +86,7 @@ namespace mpp_impl {
 
         std::regex_iterator<IterT> re_begin(begin, end, re), re_end;
         if (re_begin != re_end) {
-            out << fmt.slice(0, re_begin->position(0)).str();
+            format_value(out, fmt.slice(0, re_begin->position(0)).str());
             f(out, *re_begin);
             fmt = fmt.substr(re_begin->position(0) + re_begin->length(0));
             return true;
@@ -116,7 +121,7 @@ namespace mpp_impl {
         mpp::string_ref fmt_ref{fmt};
         mpp_impl::format_impl(out, fmt_ref, std::forward<Args>(args)...);
         if (!fmt_ref.empty()) {
-            out << fmt_ref.str();
+            format_value(out, fmt_ref.str());
         }
     }
 }

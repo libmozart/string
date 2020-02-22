@@ -39,6 +39,9 @@ my_op &operator<<(my_op &out, const std::string &s) {
     return out;
 }
 
+class no_op {
+};
+
 int main() {
     auto s = mpp::format("hello {} {} {}", 0.1 + 0.2);
     printf("%s\n", s.c_str());
@@ -59,5 +62,8 @@ int main() {
 
     my_op op;
     mpp::format(op, "test must be string {}", 'a');
+
+    no_op nop;
+    mpp::format(nop, "this line will never be formatted", 'f');
     return 0;
 }
