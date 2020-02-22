@@ -19,35 +19,51 @@
 namespace mpp_impl {
     template <typename T>
     struct format_value_helper {
-        static std::string doit(T &&t) {
-            return mpp::to_string(std::forward<T>(t));
+        template <typename Out>
+        static auto try_write_stream(Out &out, T &&t, bool) -> decltype(out << std::forward<T>(t)) {
+            out << std::forward<T>(t);
+        }
+
+        template <typename Out>
+        static void try_write_stream(Out &out, T &&t, int) {
+            out << mpp::to_string(std::forward<T>(t));
+        }
+
+        template <typename Out>
+        static void doit(Out &out, T &&t) {
+            // Try to use stream operator first,
+            // bacause mpp::to_string() is the final fallback.
+            try_write_stream(out, std::forward<T>(t), true);
         }
     };
 
     template <>
     struct format_value_helper<char> {
-        static std::string doit(char c) {
-            return std::string(1, c);
+        template <typename Out>
+        static void doit(Out &out, char c) {
+            out << c;
         }
     };
 
     template <size_t N>
     struct format_value_helper<char (&)[N]> {
-        static std::string doit(const char *str) {
-            return std::string(str);
+        template <typename Out>
+        static void doit(Out &out, const char *str) {
+            out << std::string(str);
         }
     };
 
     template <size_t N>
     struct format_value_helper<const char (&)[N]> {
-        static std::string doit(const char *str) {
-            return std::string(str);
+        template <typename Out>
+        static void doit(Out &out, const char *str) {
+            out << std::string(str);
         }
     };
 
-    template <typename T>
-    std::string format_value(T &&t) {
-        return format_value_helper<T>::doit(std::forward<T>(t));
+    template <typename Out, typename T>
+    void format_value(Out &out, T &&t) {
+        format_value_helper<T>::doit(out, std::forward<T>(t));
     }
 
     template <typename Out, typename Callback>
@@ -60,7 +76,7 @@ namespace mpp_impl {
         std::regex_iterator<IterT> re_begin(begin, end, re), re_end;
         if (re_begin != re_end) {
             out << fmt.slice(0, re_begin->position(0)).str();
-            out << f(*re_begin);
+            f(out, *re_begin);
             fmt = fmt.substr(re_begin->position(0) + re_begin->length(0));
             return true;
         }
@@ -71,8 +87,8 @@ namespace mpp_impl {
     bool format_impl(Out &out, mpp::string_ref &fmt, T &&t) {
         std::regex r("\\{\\}");
         using IterT = decltype(fmt.begin());
-        return try_format_partially(out, fmt, r, [&](const std::match_results<IterT> &sm) {
-            return format_value(std::forward<T>(t));
+        return try_format_partially(out, fmt, r, [&](Out &out, const std::match_results<IterT> &sm) {
+            format_value(out, std::forward<T>(t));
         });
     }
 
