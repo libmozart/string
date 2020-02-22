@@ -29,17 +29,17 @@ std::string mpp::to_string(const objx &val) {
     return mpp::format("objxToString{a: {}, b: {}}", val.a, val.b);
 }
 
-class my_op {
+class only_string_writable {
 public:
 
 };
 
-my_op &operator<<(my_op &out, const std::string &s) {
+only_string_writable &operator<<(only_string_writable &out, const std::string &s) {
     std::cout << s;
     return out;
 }
 
-class no_op {
+class nothing_writable {
 };
 
 int main() {
@@ -60,10 +60,10 @@ int main() {
     mpp::format(std::cout, "object is {}\n", obj{});
     mpp::format(std::cout, "objectX is {}\n", objx{.a = 10, .b = 20});
 
-    my_op op;
+    only_string_writable op;
     mpp::format(op, "test must be string {}", 'a');
 
-    no_op nop;
+    nothing_writable nop;
     mpp::format(nop, "this line will never be formatted", 'f');
     return 0;
 }
