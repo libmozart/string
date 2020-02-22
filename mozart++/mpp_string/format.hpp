@@ -53,7 +53,7 @@ namespace mpp_impl {
         std::regex_iterator<IterT> re_begin(begin, end, re), re_end;
         if (re_begin != re_end) {
             out << fmt.slice(0, re_begin->position(0)).str();
-            out << static_cast<std::string>(f(*re_begin));
+            out << f(*re_begin);
             fmt = fmt.substr(re_begin->position(0) + re_begin->length(0));
             return true;
         }
