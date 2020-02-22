@@ -19,8 +19,8 @@
 namespace mpp_impl {
     template <typename T>
     struct format_value_helper {
-        static std::string doit(const T &t) {
-            return mpp::to_string(t);
+        static std::string doit(T &&t) {
+            return mpp::to_string(std::forward<T>(t));
         }
     };
 
@@ -32,15 +32,22 @@ namespace mpp_impl {
     };
 
     template <size_t N>
-    struct format_value_helper<char[N]> {
+    struct format_value_helper<char (&)[N]> {
+        static std::string doit(const char *str) {
+            return std::string(str);
+        }
+    };
+
+    template <size_t N>
+    struct format_value_helper<const char (&)[N]> {
         static std::string doit(const char *str) {
             return std::string(str);
         }
     };
 
     template <typename T>
-    std::string format_value(const T &t) {
-        return format_value_helper<T>::doit(t);
+    std::string format_value(T &&t) {
+        return format_value_helper<T>::doit(std::forward<T>(t));
     }
 
     template <typename Out, typename Callback>
@@ -61,17 +68,17 @@ namespace mpp_impl {
     }
 
     template <typename Out, typename T>
-    bool format_impl(Out &out, mpp::string_ref &fmt, const T &t) {
+    bool format_impl(Out &out, mpp::string_ref &fmt, T &&t) {
         std::regex r("\\{\\}");
         using IterT = decltype(fmt.begin());
         return try_format_partially(out, fmt, r, [&](const std::match_results<IterT> &sm) {
-            return format_value(t);
+            return format_value(std::forward<T>(t));
         });
     }
 
     template <typename Out, typename T, typename ...Args>
-    void format_impl(Out &out, mpp::string_ref &fmt, const T &head, Args &&... args) {
-        if (!mpp_impl::format_impl(out, fmt, head)) {
+    void format_impl(Out &out, mpp::string_ref &fmt, T &&head, Args &&... args) {
+        if (!mpp_impl::format_impl(out, fmt, std::forward<T>(head))) {
             return;
         }
         mpp_impl::format_impl(out, fmt, std::forward<Args>(args)...);
