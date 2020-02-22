@@ -33,7 +33,7 @@ namespace mpp_impl {
         }
 
         template <typename Out>
-        static void try_write_stream(Out &out, ParamT t, long) {
+        static void try_write_stream(Out &, ParamT, long) {
             // the stream cannot write anything, even a string.
         }
 
