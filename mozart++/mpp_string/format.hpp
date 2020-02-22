@@ -17,47 +17,53 @@
 #include <string>
 
 namespace mpp_impl {
-    template <typename T>
-    struct format_value_helper {
+    template <typename Out, typename T>
+    void format_value(Out &out, T &&t);
+
+    template <typename T, typename ParamT = T &&>
+    struct requires_writable {
         template <typename Out>
-        static auto try_write_stream(Out &out, T &&t, bool) -> decltype(out << std::forward<T>(t)) {
+        static auto try_write_stream(Out &out, ParamT t, bool) -> decltype(out << std::forward<T>(t)) {
             out << std::forward<T>(t);
         }
 
         template <typename Out>
-        static void try_write_stream(Out &out, T &&t, int) {
+        static void try_write_stream(Out &out, ParamT t, int) {
             out << mpp::to_string(std::forward<T>(t));
         }
 
         template <typename Out>
-        static void doit(Out &out, T &&t) {
+        static void doit(Out &out, ParamT t) {
             // Try to use stream operator first,
             // bacause mpp::to_string() is the final fallback.
             try_write_stream(out, std::forward<T>(t), true);
         }
     };
 
+    template <typename T>
+    struct format_value_helper : public requires_writable<T> {
+    };
+
     template <>
-    struct format_value_helper<char> {
-        template <typename Out>
-        static void doit(Out &out, char c) {
-            out << c;
-        }
+    struct format_value_helper<char> : public requires_writable<char, char> {
     };
 
     template <size_t N>
-    struct format_value_helper<char (&)[N]> {
-        template <typename Out>
-        static void doit(Out &out, const char *str) {
-            out << std::string(str);
-        }
+    struct format_value_helper<const char (&)[N]> : public requires_writable<std::string> {
     };
 
-    template <size_t N>
-    struct format_value_helper<const char (&)[N]> {
+    template <typename T, size_t N>
+    struct format_value_helper<T (&)[N]> {
         template <typename Out>
-        static void doit(Out &out, const char *str) {
-            out << std::string(str);
+        static void doit(Out &out, const T *arr) {
+            format_value(out, "[");
+            for (size_t i = 0; i < N; ++i) {
+                format_value(out, arr[i]);
+                if (i != N - 1) {
+                    format_value(out, ", ");
+                }
+            }
+            format_value(out, "]");
         }
     };
 

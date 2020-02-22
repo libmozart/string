@@ -29,6 +29,16 @@ std::string mpp::to_string(const objx &val) {
     return mpp::format("objxToString{a: {}, b: {}}", val.a, val.b);
 }
 
+class my_op {
+public:
+
+};
+
+my_op &operator<<(my_op &out, const std::string &s) {
+    std::cout << s;
+    return out;
+}
+
 int main() {
     auto s = mpp::format("hello {} {} {}", 0.1 + 0.2);
     printf("%s\n", s.c_str());
@@ -38,10 +48,16 @@ int main() {
     const char ss[3] = "it";
     mpp::format(std::cout, "love {}\n", ss);
 
-    char sss[3] = {'i', 's', '\0'};
+    char sss[3] = {'i', 's', '_'};
     mpp::format(std::cout, "This {} shit\n", sss);
+
+    const char *f = "lover, fucker";
+    mpp::format(std::cout, "hop, {}\n", f);
 
     mpp::format(std::cout, "object is {}\n", obj{});
     mpp::format(std::cout, "objectX is {}\n", objx{.a = 10, .b = 20});
+
+    my_op op;
+    mpp::format(op, "test must be string {}", 'a');
     return 0;
 }
