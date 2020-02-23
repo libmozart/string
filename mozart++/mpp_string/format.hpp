@@ -113,7 +113,7 @@ namespace mpp_impl {
 
     template <typename Out>
     void format(Out &out, const std::string &fmt) {
-        out << fmt;
+        format_value(out, fmt);
     }
 
     template <typename Out, typename ...Args>
