@@ -97,6 +97,9 @@ int main() {
     mpp::format(std::cout, "left aligned 10: [{:-10}]\n", 10);
     mpp::format(std::cout, "right aligned 10: [{:10}]\n", 10);
 
+    mpp::format(std::cout, "left aligned 10, fill with =: [{:-10|=}]\n", 10);
+    mpp::format(std::cout, "right aligned 10, fill with 6: [{:10|6}]\n", 10);
+
     mpp::format(std::cout,
         "in float format, up to 2 floating points, right aligned to 4 {.2f:4}\n",
         3.14);
