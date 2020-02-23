@@ -11,7 +11,7 @@
 /**
  * The Mozart++ String formatter placeholders.
  * <p>
- * The structure of the placeholder are as described:
+ * The structure of the placeholder are described as:
  * {<floating-points><output-format><alignment>}
  * where:
  *
