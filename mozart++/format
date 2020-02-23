@@ -26,7 +26,7 @@
  *     o    -    The number will be formatted in oct.
  *     x    -    The number will be formatted in hex.
  *     e    -    The number will be formatted in scientific format.
- * e.g. {x}, {f}, {e}
+ * e.g. {x}, {o}, {e}
  *
  * <p>
  * <alignment> must start with a colon(:), then followed by alignment
