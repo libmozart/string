@@ -99,11 +99,16 @@ namespace mpp_impl {
 
         std::regex_iterator<string_iter_t> re_begin(begin, end, re), re_end;
         if (re_begin != re_end) {
+            // text before the match
             format_value(out, fmt.slice(0, re_begin->position(0)).str());
+            // the match itself
             format_value_and_control(out, std::forward<T>(t), *re_begin);
+            // the rest text to be matched next time
             fmt = fmt.substr(re_begin->position(0) + re_begin->length(0));
+            // be greedy
             return true;
         }
+        // nothing to match
         return false;
     }
 
@@ -116,6 +121,7 @@ namespace mpp_impl {
     template <typename Out, typename T, typename ...Args>
     void format_impl(Out &out, mpp::string_ref &fmt, T &&head, Args &&... args) {
         if (!mpp_impl::format_impl(out, fmt, std::forward<T>(head))) {
+            // nothing to format (no {...} was found)
             return;
         }
         mpp_impl::format_impl(out, fmt, std::forward<Args>(args)...);
