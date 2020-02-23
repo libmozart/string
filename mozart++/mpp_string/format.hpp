@@ -100,6 +100,7 @@ namespace mpp_impl {
 
     enum class ctflag {
         ALIGN,
+        FILL,
         FLOATINGS,
         FORMAT_HEX,
         FORMAT_DEC,
@@ -122,6 +123,14 @@ namespace mpp_impl {
         static void doit(Out &out, int w, bool left) {
             mpp_impl::write_control(out, left ? std::left : std::right);
             mpp_impl::write_control(out, std::setw(w));
+        }
+    };
+
+    template <typename T>
+    struct control_writer<ctflag::FILL, T> {
+        template <typename Out>
+        static void doit(Out &out, char fill_ch) {
+            mpp_impl::write_control(out, std::setfill(fill_ch));
         }
     };
 
@@ -253,6 +262,13 @@ namespace mpp_impl {
             // regex ensures the atoi will never fail
             int width = ::atoi(left ? align.c_str() + 2 : align.c_str() + 1);
             control_writer<ctflag::ALIGN, T>::doit(out, width, left);
+
+            // check the fill control flag
+            const std::string &fill = match.str(4);
+            if (!fill.empty()) {
+                char fill_ch = *(fill.c_str() + 1);
+                control_writer<ctflag::FILL, T>::doit(out, fill_ch);
+            }
         }
 
         write_value(out, std::forward<T>(t));
@@ -280,7 +296,7 @@ namespace mpp_impl {
 
     template <typename Out, typename T>
     bool format_impl(Out &out, mpp::string_ref &fmt, T &&t) {
-        std::regex r(R"(\{(\.[0-9]+)?([xdofe])?(\:\-?[0-9]+)?\})");
+        std::regex r(R"(\{(\.[0-9]+)?([xdofe])?(\:\-?[0-9]+(\|.)?)?\})");
         return try_format_one(out, fmt, r, std::forward<T>(t));
     }
 
