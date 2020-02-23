@@ -96,7 +96,7 @@ namespace mpp_impl {
 
     template <typename Out, typename T>
     bool format_impl(Out &out, mpp::string_ref &fmt, T &&t) {
-        std::regex r("\\{\\}");
+        std::regex r(R"(\{\})");
         using IterT = decltype(fmt.begin());
         return try_format_partially(out, fmt, r, [&](Out &out, const std::match_results<IterT> &sm) {
             format_value(out, std::forward<T>(t));
