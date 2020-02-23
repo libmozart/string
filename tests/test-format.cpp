@@ -67,5 +67,27 @@ int main() {
     mpp::format(nop, "this line will never be formatted", 'f');
 
     mpp::format(std::cout, "an int inside a bracket {{}}\n", 100);
+
+    int matrix[3][4] = {
+        {1, 2, 3, 4},
+        {5, 6, 7, 8},
+        {9, 0, 1, 2},
+    };
+
+    int matX[2][3][4] = {
+        {
+            {1, 2, 3, 4},
+            {5, 6, 7, 8},
+            {9, 0, 1, 2},
+        },
+        {
+            {4, 5, 11, 4},
+            {5, 1, 4, 1},
+            {5, 4, 1, 1},
+        }
+    };
+
+    mpp::format(std::cout, "Matrix = {}\n", matrix);
+    mpp::format(std::cout, "MatrixX = {}\n", matX);
     return 0;
 }
