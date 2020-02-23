@@ -17,8 +17,14 @@
 #include <string>
 
 namespace mpp_impl {
+    using string_iter_t = mpp::string_ref::const_iterator;
+    using match_t = std::match_results<string_iter_t>;
+
     template <typename Out, typename T>
     void format_value(Out &out, T &&t);
+
+    template <typename Out, typename T>
+    void format_control(Out &out, const std::string &control);
 
     template <typename T, typename ParamT = T &&>
     struct requires_writable {
@@ -77,17 +83,24 @@ namespace mpp_impl {
         format_value_helper<T>::doit(out, std::forward<T>(t));
     }
 
-    template <typename Out, typename Callback>
-    bool try_format_partially(Out &out, mpp::string_ref &fmt, const std::regex &re, Callback f) {
-        using IterT = decltype(fmt.begin());
+    template <typename Out, typename T>
+    void format_control(Out &out, const std::string &control) {
+    }
 
-        IterT begin = fmt.begin();
-        IterT end = fmt.end();
+    template <typename Out, typename T>
+    void format_value_and_control(Out &out, T &&t, const match_t &match) {
+        format_value(out, std::forward<T>(t));
+    }
 
-        std::regex_iterator<IterT> re_begin(begin, end, re), re_end;
+    template <typename Out, typename T>
+    bool try_format_partially(Out &out, mpp::string_ref &fmt, const std::regex &re, T &&t) {
+        string_iter_t begin = fmt.begin();
+        string_iter_t end = fmt.end();
+
+        std::regex_iterator<string_iter_t> re_begin(begin, end, re), re_end;
         if (re_begin != re_end) {
             format_value(out, fmt.slice(0, re_begin->position(0)).str());
-            f(out, *re_begin);
+            format_value_and_control(out, std::forward<T>(t), *re_begin);
             fmt = fmt.substr(re_begin->position(0) + re_begin->length(0));
             return true;
         }
@@ -96,11 +109,8 @@ namespace mpp_impl {
 
     template <typename Out, typename T>
     bool format_impl(Out &out, mpp::string_ref &fmt, T &&t) {
-        std::regex r(R"(\{\})");
-        using IterT = decltype(fmt.begin());
-        return try_format_partially(out, fmt, r, [&](Out &out, const std::match_results<IterT> &sm) {
-            format_value(out, std::forward<T>(t));
-        });
+        std::regex r(R"(\{(\.[0-9]+)?([xX]|[fF])?(\:\-?[0-9]+)?\})");
+        return try_format_partially(out, fmt, r, std::forward<T>(t));
     }
 
     template <typename Out, typename T, typename ...Args>
