@@ -23,9 +23,6 @@ namespace mpp_impl {
     template <typename Out, typename T>
     void write_value(Out &out, T &&t);
 
-    template <typename Out, typename T>
-    void write_control(Out &out, const std::string &control);
-
     template <typename T, typename ParamT = T &&>
     struct requires_writable {
         template <typename Out>
