@@ -102,7 +102,6 @@ namespace mpp_impl {
         FORMAT_HEX,
         FORMAT_DEC,
         FORMAT_OCT,
-        FORMAT_FLOAT,
         FORMAT_SCI,
     };
 
@@ -172,14 +171,6 @@ namespace mpp_impl {
     };
 
     template <typename T>
-    struct control_writer<ctflag::FORMAT_FLOAT, T, std::enable_if_t<std::is_floating_point<T>::value>> {
-        template <typename Out>
-        static void doit(Out &out) {
-            mpp_impl::write_control(out, std::defaultfloat);
-        }
-    };
-
-    template <typename T>
     struct control_writer<ctflag::FORMAT_SCI, T, std::enable_if_t<std::is_floating_point<T>::value>> {
         template <typename Out>
         static void doit(Out &out) {
@@ -243,9 +234,6 @@ namespace mpp_impl {
                 case 'd':
                     control_writer<ctflag::FORMAT_DEC, T>::doit(out);
                     break;
-                case 'f':
-                    control_writer<ctflag::FORMAT_FLOAT, T>::doit(out);
-                    break;
                 case 'e':
                     control_writer<ctflag::FORMAT_SCI, T>::doit(out);
                     break;
@@ -293,7 +281,7 @@ namespace mpp_impl {
 
     template <typename Out, typename T>
     bool format_impl(Out &out, mpp::string_ref &fmt, T &&t) {
-        std::regex r(R"(\{(\.[0-9]+)?([xdofe])?(\:\-?[0-9]+(\|.)?)?\})");
+        std::regex r(R"(\{(\.[0-9]+)?([xdoe])?(\:\-?[0-9]+(\|.)?)?\})");
         return try_format_one(out, fmt, r, std::forward<T>(t));
     }
 

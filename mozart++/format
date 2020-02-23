@@ -25,7 +25,6 @@
  *     d    -    The number will be formatted in dec.
  *     o    -    The number will be formatted in oct.
  *     x    -    The number will be formatted in hex.
- *     f    -    The number will be formatted in normal float.
  *     e    -    The number will be formatted in scientific format.
  * e.g. {x}, {f}, {e}
  *
@@ -46,7 +45,6 @@
  * @see std::dec
  * @see std::hex
  * @see std::hexfloat
- * @see std::defaultfloat
  * @see std::oct
  * @see std::fixed
  * @see std::scientific
