@@ -93,7 +93,7 @@ namespace mpp_impl {
     }
 
     template <typename Out, typename T>
-    bool try_format_partially(Out &out, mpp::string_ref &fmt, const std::regex &re, T &&t) {
+    bool try_format_one(Out &out, mpp::string_ref &fmt, const std::regex &re, T &&t) {
         string_iter_t begin = fmt.begin();
         string_iter_t end = fmt.end();
 
@@ -115,7 +115,7 @@ namespace mpp_impl {
     template <typename Out, typename T>
     bool format_impl(Out &out, mpp::string_ref &fmt, T &&t) {
         std::regex r(R"(\{(\.[0-9]+)?([xX]|[fF])?(\:\-?[0-9]+)?\})");
-        return try_format_partially(out, fmt, r, std::forward<T>(t));
+        return try_format_one(out, fmt, r, std::forward<T>(t));
     }
 
     template <typename Out, typename T, typename ...Args>
