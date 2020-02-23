@@ -51,7 +51,7 @@ int main() {
     const char ss[3] = "it";
     mpp::format(std::cout, "love {}\n", ss);
 
-    char sss[3] = {'i', 's', '_'};
+    char sss[4] = {'*', 'i', 's', '*'};
     mpp::format(std::cout, "This {} shit\n", sss);
 
     const char *f = "lover, fucker";
@@ -61,9 +61,11 @@ int main() {
     mpp::format(std::cout, "objectX is {}\n", objx{.a = 10, .b = 20});
 
     only_string_writable op;
-    mpp::format(op, "test must be string {}", 'a');
+    mpp::format(op, "test must be string {}\n", 'a');
 
     nothing_writable nop;
     mpp::format(nop, "this line will never be formatted", 'f');
+
+    mpp::format(std::cout, "an int inside a bracket {{}}\n", 100);
     return 0;
 }
