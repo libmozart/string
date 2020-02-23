@@ -89,5 +89,12 @@ int main() {
 
     mpp::format(std::cout, "Matrix = {}\n", matrix);
     mpp::format(std::cout, "MatrixX = {}\n", matX);
+
+    mpp::format(std::cout, "dec 15 in hex is {x}\n", 15);
+    mpp::format(std::cout, "decf 15.0 in hexf is {x}\n", 15.0);
+    mpp::format(std::cout, "decf 15.0 in sci is {e}\n", 15.0);
+
+    mpp::format(std::cout, "left aligned 10: [{:-10}]\n", 10);
+    mpp::format(std::cout, "right aligned 10: [{:10}]\n", 10);
     return 0;
 }
