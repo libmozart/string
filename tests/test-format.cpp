@@ -96,5 +96,13 @@ int main() {
 
     mpp::format(std::cout, "left aligned 10: [{:-10}]\n", 10);
     mpp::format(std::cout, "right aligned 10: [{:10}]\n", 10);
+
+    mpp::format(std::cout,
+        "in float format, up to 2 floating points, right aligned to 4 {.2f:4}\n",
+        3.14);
+
+    mpp::format(std::cout,
+        "in hex format, up to 2 floating points, right aligned to 4 {.2x:4}\n",
+        3.14);
     return 0;
 }
