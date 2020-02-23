@@ -21,10 +21,10 @@ namespace mpp_impl {
     using match_t = std::match_results<string_iter_t>;
 
     template <typename Out, typename T>
-    void format_value(Out &out, T &&t);
+    void write_value(Out &out, T &&t);
 
     template <typename Out, typename T>
-    void format_control(Out &out, const std::string &control);
+    void write_control(Out &out, const std::string &control);
 
     template <typename T, typename ParamT = T &&>
     struct requires_writable {
@@ -52,44 +52,44 @@ namespace mpp_impl {
     };
 
     template <typename T>
-    struct format_value_helper : public requires_writable<T> {
+    struct value_writer : public requires_writable<T> {
     };
 
     template <>
-    struct format_value_helper<char> : public requires_writable<char, char> {
+    struct value_writer<char> : public requires_writable<char, char> {
     };
 
     template <size_t N>
-    struct format_value_helper<const char (&)[N]> : public requires_writable<std::string> {
+    struct value_writer<const char (&)[N]> : public requires_writable<std::string> {
     };
 
     template <typename T, size_t N>
-    struct format_value_helper<T (&)[N]> {
+    struct value_writer<T (&)[N]> {
         template <typename Out>
         static void doit(Out &out, const T *arr) {
-            format_value(out, "[");
+            write_value(out, "[");
             for (size_t i = 0; i < N; ++i) {
-                format_value(out, arr[i]);
+                write_value(out, arr[i]);
                 if (i != N - 1) {
-                    format_value(out, ", ");
+                    write_value(out, ", ");
                 }
             }
-            format_value(out, "]");
+            write_value(out, "]");
         }
     };
 
     template <typename Out, typename T>
-    void format_value(Out &out, T &&t) {
-        format_value_helper<T>::doit(out, std::forward<T>(t));
+    void write_value(Out &out, T &&t) {
+        value_writer<T>::doit(out, std::forward<T>(t));
     }
 
     template <typename Out, typename T>
-    void format_control(Out &out, const std::string &control) {
+    void write_control(Out &out, const std::string &control) {
     }
 
     template <typename Out, typename T>
-    void format_value_and_control(Out &out, T &&t, const match_t &match) {
-        format_value(out, std::forward<T>(t));
+    void write_value_and_control(Out &out, T &&t, const match_t &match) {
+        write_value(out, std::forward<T>(t));
     }
 
     template <typename Out, typename T>
@@ -100,9 +100,9 @@ namespace mpp_impl {
         std::regex_iterator<string_iter_t> re_begin(begin, end, re), re_end;
         if (re_begin != re_end) {
             // text before the match
-            format_value(out, fmt.slice(0, re_begin->position(0)).str());
+            write_value(out, fmt.slice(0, re_begin->position(0)).str());
             // the match itself
-            format_value_and_control(out, std::forward<T>(t), *re_begin);
+            write_value_and_control(out, std::forward<T>(t), *re_begin);
             // the rest text to be matched next time
             fmt = fmt.substr(re_begin->position(0) + re_begin->length(0));
             // be greedy
@@ -129,7 +129,7 @@ namespace mpp_impl {
 
     template <typename Out>
     void format(Out &out, const std::string &fmt) {
-        format_value(out, fmt);
+        write_value(out, fmt);
     }
 
     template <typename Out, typename ...Args>
@@ -137,7 +137,7 @@ namespace mpp_impl {
         mpp::string_ref fmt_ref{fmt};
         mpp_impl::format_impl(out, fmt_ref, std::forward<Args>(args)...);
         if (!fmt_ref.empty()) {
-            format_value(out, fmt_ref.str());
+            write_value(out, fmt_ref.str());
         }
     }
 }
