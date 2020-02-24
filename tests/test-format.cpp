@@ -91,6 +91,7 @@ int main() {
 
     mpp::format(std::cout, "Matrix = {}\n", matrix);
     mpp::format(std::cout, "MatrixX = {}\n", matX);
+    mpp::format(std::cout, "pair of ints = {}\n", std::make_pair(1, 2));
 
     mpp::format(std::cout, "dec 15 in hex is {x}\n", 15);
     mpp::format(std::cout, "decf 15.0 in hexf is {x}\n", 15.0);

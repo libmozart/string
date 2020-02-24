@@ -11,6 +11,7 @@
 #include <mozart++/core>
 #include <mozart++/any>
 #include <mozart++/string>
+#include <mozart++/iterator_range>
 #include <iomanip>
 #include <regex>
 #include <sstream>
@@ -64,10 +65,32 @@ namespace mpp_impl {
     struct value_writer<T (&)[N]> {
         template <typename Out>
         static void doit(Out &out, const T *arr) {
+            write_value(out, mpp::make_range(arr, arr + N));
+        }
+    };
+
+    template <typename T, typename R>
+    struct value_writer<std::pair<T, R>> {
+        template <typename Out>
+        static void doit(Out &out, const std::pair<T, R> &pair) {
+            write_value(out, "(");
+            write_value(out, pair.first);
+            write_value(out, ", ");
+            write_value(out, pair.second);
+            write_value(out, ")");
+        }
+    };
+
+    template <typename IterT>
+    struct value_writer<mpp::iterator_range<IterT>> {
+        template <typename Out>
+        static void doit(Out &out, const mpp::iterator_range<IterT> &iters) {
             write_value(out, "[");
-            for (size_t i = 0; i < N; ++i) {
-                write_value(out, arr[i]);
-                if (i != N - 1) {
+            auto &&end = iters.end();
+            auto &&last = end - 1;
+            for (auto i = iters.begin(); i != end; ++i) {
+                write_value(out, *i);
+                if (i != last) {
                     write_value(out, ", ");
                 }
             }
