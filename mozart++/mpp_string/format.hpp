@@ -24,28 +24,29 @@ namespace mpp_impl {
     template <typename Out, typename T>
     void write_value(Out &out, T &&t);
 
-    template <typename T, typename ParamT = T &&>
+    template <typename T>
     struct requires_writable {
-        template <typename Out>
-        static auto try_write_stream(Out &out, ParamT t, bool) -> decltype(out << std::forward<T>(t)) {
-            return (out << std::forward<T>(t));
+        template <typename Out, typename ParamT>
+        static auto try_write_stream(Out &out, ParamT &&t, bool) -> decltype(out << std::forward<ParamT>(t)) {
+            return (out << std::forward<ParamT>(t));
         }
 
-        template <typename Out>
-        static auto try_write_stream(Out &out, ParamT t, int) -> decltype(out << mpp::to_string(std::forward<T>(t))) {
-            return (out << mpp::to_string(std::forward<T>(t)));
+        template <typename Out, typename ParamT>
+        static auto
+        try_write_stream(Out &out, ParamT &&t, int) -> decltype(out << mpp::to_string(std::forward<ParamT>(t))) {
+            return (out << mpp::to_string(std::forward<ParamT>(t)));
         }
 
-        template <typename Out>
-        static void try_write_stream(Out &, ParamT, long) {
+        template <typename Out, typename ParamT>
+        static void try_write_stream(Out &, ParamT &&, long) {
             // the stream cannot write anything, even a string.
         }
 
-        template <typename Out>
-        static void doit(Out &out, ParamT t) {
+        template <typename Out, typename ParamT>
+        static void doit(Out &out, ParamT &&t) {
             // Try to use stream operator first,
             // bacause mpp::to_string() is the final fallback.
-            try_write_stream(out, std::forward<T>(t), true);
+            try_write_stream(out, std::forward<ParamT>(t), true);
         }
     };
 
@@ -58,8 +59,8 @@ namespace mpp_impl {
 
     template <typename Container>
     struct iterable_writer<Container, true> {
-        template <typename Out>
-        static void doit(Out &out, Container &&c) {
+        template <typename Out, typename C>
+        static void doit(Out &out, C &&c) {
             write_value(out, mpp::make_range(std::forward<Container>(c)));
         }
     };
@@ -69,15 +70,15 @@ namespace mpp_impl {
     };
 
     template <>
-    struct value_writer<char> : public requires_writable<char, char> {
+    struct value_writer<char> : public requires_writable<char> {
     };
 
     template <size_t N>
-    struct value_writer<const char (&)[N]> : public requires_writable<std::string> {
+    struct value_writer<char[N]> : public requires_writable<std::string> {
     };
 
     template <typename T, size_t N>
-    struct value_writer<T (&)[N]> {
+    struct value_writer<T[N]> {
         template <typename Out>
         static void doit(Out &out, const T *arr) {
             write_value(out, mpp::make_range(arr, arr + N));
@@ -115,7 +116,7 @@ namespace mpp_impl {
 
     template <typename Out, typename T>
     void write_value(Out &out, T &&t) {
-        value_writer<T>::doit(out, std::forward<T>(t));
+        value_writer<remove_cr_t<T>>::doit(out, std::forward<T>(t));
     }
 
     template <typename Out, typename C>
@@ -248,6 +249,7 @@ namespace mpp_impl {
 
     template <typename Out, typename T>
     void write_value_and_control(Out &out, T &&t, const match_t &match) {
+        using actual_type = remove_cr_t<T>;
         const std::string &floats = match.str(1);
         const std::string &formats = match.str(2);
         const std::string &align = match.str(3);
@@ -258,22 +260,22 @@ namespace mpp_impl {
         if (!floats.empty()) {
             // regex ensures the atoi will never fail
             int npoints = ::atoi(floats.c_str() + 1);
-            control_writer<ctflag::FLOATINGS, T>::doit(out, npoints);
+            control_writer<ctflag::FLOATINGS, actual_type>::doit(out, npoints);
         }
 
         if (!formats.empty()) {
             switch (*formats.c_str()) {
                 case 'x':
-                    control_writer<ctflag::FORMAT_HEX, T>::doit(out);
+                    control_writer<ctflag::FORMAT_HEX, actual_type>::doit(out);
                     break;
                 case 'o':
-                    control_writer<ctflag::FORMAT_OCT, T>::doit(out);
+                    control_writer<ctflag::FORMAT_OCT, actual_type>::doit(out);
                     break;
                 case 'd':
-                    control_writer<ctflag::FORMAT_DEC, T>::doit(out);
+                    control_writer<ctflag::FORMAT_DEC, actual_type>::doit(out);
                     break;
                 case 'e':
-                    control_writer<ctflag::FORMAT_SCI, T>::doit(out);
+                    control_writer<ctflag::FORMAT_SCI, actual_type>::doit(out);
                     break;
                 default:
                     break;
@@ -284,13 +286,13 @@ namespace mpp_impl {
             bool left = *(align.c_str() + 1) == '-';
             // regex ensures the atoi will never fail
             int width = ::atoi(left ? align.c_str() + 2 : align.c_str() + 1);
-            control_writer<ctflag::ALIGN, T>::doit(out, width, left);
+            control_writer<ctflag::ALIGN, actual_type>::doit(out, width, left);
 
             // check the fill control flag
             const std::string &fill = match.str(4);
             if (!fill.empty()) {
                 char fill_ch = *(fill.c_str() + 1);
-                control_writer<ctflag::FILL, T>::doit(out, fill_ch);
+                control_writer<ctflag::FILL, actual_type>::doit(out, fill_ch);
             }
         }
 
