@@ -12,6 +12,7 @@
 #include <vector>
 #include <deque>
 #include <list>
+#include <tuple>
 
 struct obj {
     int a = 0;
@@ -99,6 +100,9 @@ int main() {
     mpp::format(std::cout, "vector of ints = {}\n", std::vector<int>{1, 1, 4, 5, 1, 4});
     mpp::format(std::cout, "deque of ints = {}\n", std::deque<int>{1, 1, 4, 5, 1, 4});
     mpp::format(std::cout, "list of ints = {}\n", std::list<int>{1, 1, 4, 5, 1, 4});
+    mpp::format(std::cout, "empty tuple = {}\n", std::make_tuple());
+    mpp::format(std::cout, "tuple = {}\n", std::make_tuple(1, 2, 3));
+    mpp::format(std::cout, "tuple = {}\n", std::make_tuple(5, "love", 0x0));
     mpp::format(std::cout, "maps = {}\n",
         std::unordered_map<int, int>{{1, 2}, {3, 4}, {5, 6}}
     );
