@@ -98,6 +98,35 @@ namespace mpp_impl {
         }
     };
 
+    template <typename ...Es>
+    struct value_writer<std::tuple<Es...>> {
+        template <size_t I, typename ...Ts>
+        struct tuple_writer {
+            template <typename Out>
+            static void doit(Out &out, const std::tuple<Ts...> &t) {
+                write_value(out, std::get<sizeof...(Ts) - I>(t));
+                if (I > 1) {
+                    write_value(out, ", ");
+                }
+                tuple_writer<I - 1, Ts...>::doit(out, t);
+            }
+        };
+
+        template <typename ...Ts>
+        struct tuple_writer<0, Ts...> {
+            template <typename Out>
+            static void doit(Out &out, const std::tuple<Ts...> &t) {
+            }
+        };
+
+        template <typename Out>
+        static void doit(Out &out, const std::tuple<Es...> &t) {
+            write_value(out, "{");
+            tuple_writer<sizeof...(Es), Es...>::doit(out, t);
+            write_value(out, "}");
+        }
+    };
+
     template <typename IterT>
     struct value_writer<mpp::iterator_range<IterT>> {
         template <typename Out>
