@@ -8,6 +8,10 @@
 
 #include <mozart++/format>
 #include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <deque>
+#include <list>
 
 struct obj {
     int a = 0;
@@ -78,7 +82,7 @@ int main() {
 
     const int matX[2][3][4] = {
         {
-            {1, 2, 3, 4},
+            {1, 2, 3,  4},
             {5, 6, 7, 8},
             {9, 0, 1, 2},
         },
@@ -92,6 +96,12 @@ int main() {
     mpp::format(std::cout, "Matrix = {}\n", matrix);
     mpp::format(std::cout, "MatrixX = {}\n", matX);
     mpp::format(std::cout, "pair of ints = {}\n", std::make_pair(1, 2));
+    mpp::format(std::cout, "vector of ints = {}\n", std::vector<int>{1, 1, 4, 5, 1, 4});
+    mpp::format(std::cout, "deque of ints = {}\n", std::deque<int>{1, 1, 4, 5, 1, 4});
+    mpp::format(std::cout, "list of ints = {}\n", std::list<int>{1, 1, 4, 5, 1, 4});
+    mpp::format(std::cout, "maps = {}\n",
+        std::unordered_map<int, int>{{1, 2}, {3, 4}, {5, 6}}
+    );
 
     mpp::format(std::cout, "dec 15 in hex is {x}\n", 15);
     mpp::format(std::cout, "decf 15.0 in hexf is {x}\n", 15.0);

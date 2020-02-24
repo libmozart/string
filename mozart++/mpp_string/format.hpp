@@ -49,8 +49,23 @@ namespace mpp_impl {
         }
     };
 
+    template <typename T, bool = mpp::is_iterable_v<T>>
+    struct iterable_writer;
+
     template <typename T>
-    struct value_writer : public requires_writable<T> {
+    struct iterable_writer<T, false> : public requires_writable<T> {
+    };
+
+    template <typename Container>
+    struct iterable_writer<Container, true> {
+        template <typename Out>
+        static void doit(Out &out, Container &&c) {
+            write_value(out, mpp::make_range(std::forward<Container>(c)));
+        }
+    };
+
+    template <typename T>
+    struct value_writer : public iterable_writer<T> {
     };
 
     template <>
@@ -85,16 +100,16 @@ namespace mpp_impl {
     struct value_writer<mpp::iterator_range<IterT>> {
         template <typename Out>
         static void doit(Out &out, const mpp::iterator_range<IterT> &iters) {
-            write_value(out, "[");
-            auto &&end = iters.end();
-            auto &&last = end - 1;
-            for (auto i = iters.begin(); i != end; ++i) {
-                write_value(out, *i);
-                if (i != last) {
+            write_value(out, "{");
+            bool comma = false;
+            for (const auto &i : iters) {
+                if (comma) {
                     write_value(out, ", ");
                 }
+                write_value(out, i);
+                comma = true;
             }
-            write_value(out, "]");
+            write_value(out, "}");
         }
     };
 
