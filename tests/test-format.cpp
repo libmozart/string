@@ -58,9 +58,6 @@ int main() {
     const char ss[3] = "it";
     mpp::format(std::cout, "love {}\n", ss);
 
-    char sss[4] = {'*', 'i', 's', '*'};
-    mpp::format(std::cout, "This {} shit\n", sss);
-
     const char *f = "lover, fucker";
     mpp::format(std::cout, "hop, {}\n", f);
 
