@@ -963,4 +963,7 @@ namespace mpp {
             return mpp::stream<char>::of(std::move(d));
         }
     };
+
+    template <>
+    struct is_iterable<mpp::string_ref> : public mpp::false_type {};
 }
