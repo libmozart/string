@@ -75,6 +75,7 @@ namespace mpp_impl {
 
     template <size_t N>
     struct value_writer<char[N]> : public requires_writable<std::string> {
+        // We have to assume that the char[N] is a string
     };
 
     template <typename T, size_t N>
