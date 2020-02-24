@@ -17,6 +17,8 @@ struct obj {
 struct objx {
     int a = 0;
     int b = 0;
+
+    objx(int a, int b) : a(a), b(b) {}
 };
 
 std::ostream &operator<<(std::ostream &out, const objx &x) {
@@ -58,7 +60,7 @@ int main() {
     mpp::format(std::cout, "hop, {}\n", f);
 
     mpp::format(std::cout, "object is {}\n", obj{});
-    mpp::format(std::cout, "objectX is {}\n", objx{.a = 10, .b = 20});
+    mpp::format(std::cout, "objectX is {}\n", objx{10, 20});
 
     only_string_writable op;
     mpp::format(op, "test must be string {}\n", 'a');

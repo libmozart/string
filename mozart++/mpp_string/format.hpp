@@ -27,12 +27,12 @@ namespace mpp_impl {
     struct requires_writable {
         template <typename Out>
         static auto try_write_stream(Out &out, ParamT t, bool) -> decltype(out << std::forward<T>(t)) {
-            out << std::forward<T>(t);
+            return (out << std::forward<T>(t));
         }
 
         template <typename Out>
         static auto try_write_stream(Out &out, ParamT t, int) -> decltype(out << mpp::to_string(std::forward<T>(t))) {
-            out << mpp::to_string(std::forward<T>(t));
+            return (out << mpp::to_string(std::forward<T>(t)));
         }
 
         template <typename Out>
@@ -82,7 +82,7 @@ namespace mpp_impl {
 
     template <typename Out, typename C>
     auto write_control_impl(Out &out, C &&c, bool) -> decltype(out << std::forward<C>(c)) {
-        out << std::forward<C>(c);
+        return (out << std::forward<C>(c));
     }
 
     template <typename Out, typename C>
@@ -185,8 +185,8 @@ namespace mpp_impl {
         ~stream_flags_saver() = default;
         stream_flags_saver(stream_flags_saver &&) = delete;
         stream_flags_saver(const stream_flags_saver &) = delete;
-        stream_flags_saver& operator=(stream_flags_saver &&) = delete;
-        stream_flags_saver& operator=(const stream_flags_saver &) = delete;
+        stream_flags_saver &operator=(stream_flags_saver &&) = delete;
+        stream_flags_saver &operator=(const stream_flags_saver &) = delete;
     };
 
     template <typename Out>
@@ -204,8 +204,8 @@ namespace mpp_impl {
 
         stream_flags_saver(stream_flags_saver &&) = delete;
         stream_flags_saver(const stream_flags_saver &) = delete;
-        stream_flags_saver& operator=(stream_flags_saver &&) = delete;
-        stream_flags_saver& operator=(const stream_flags_saver &) = delete;
+        stream_flags_saver &operator=(stream_flags_saver &&) = delete;
+        stream_flags_saver &operator=(const stream_flags_saver &) = delete;
     };
 
     template <typename Out, typename T>
