@@ -382,7 +382,7 @@ namespace mpp_impl {
 namespace mpp {
     using mpp_impl::format;
 
-    std::string format(const std::string &fmt) {
+    static std::string format(const std::string &fmt) {
         return fmt;
     }
 
